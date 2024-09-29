@@ -101,18 +101,21 @@ SELECT title, author, price, amount, 30 - amount AS 'Продано',
 # Solution for task2
 ROUND(
 CASE 
-	WHEN amount <=9 THEN price
-	WHEN amount <14 THEN price * 0.75
+	WHEN amount <9 THEN price
+	WHEN amount >=9 AND amount<14 THEN price * 0.75
 	ELSE price * 0.45
 END, 2) AS 'Новая цена',
 
 # Solution for task3
 CEIL(
 CASE 
-	WHEN amount <3 THEN 30*1.25
-	WHEN amount <14 THEN 30 - amount
+	WHEN amount <=3 THEN 30*1.25
+	WHEN amount >3 AND amount<14 THEN 30 - amount
 	ELSE amount = 0
 END) AS 'Закупить'
 FROM book;
+
+
+
 
 
