@@ -36,6 +36,10 @@ ALTER TABLE book DROP COLUMN book_id;
 -- Добавьте новый столбец book_id с AUTO_INCREMENT
 ALTER TABLE book ADD COLUMN book_id INT PRIMARY KEY AUTO_INCREMENT FIRST;
 
+-- Поменять (если нужно) значения book_id
+UPDATE book SET book_id = 6 WHERE book_id = 3;
+...
+
 Check that new row will be added without any errors:
 INSERT INTO book (title, author, price, amount) VALUES 
 ('Новое название', 'Новый автор', 100.00, 1);

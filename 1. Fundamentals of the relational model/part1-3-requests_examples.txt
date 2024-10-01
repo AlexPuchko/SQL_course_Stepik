@@ -1,0 +1,78 @@
+Выборка уникальных значений столбца:
+SELECT DISTINCT amount
+FROM book;
+
+Кол-во книг у автора и кол-во экземпляров:
+SELECT author AS 'Автор', COUNT(author) AS 'Различных_книг', SUM(amount) AS 'Количество_экземпляров'
+FROM book
+GROUP BY author; //оставляет уникальные знаения столбца
+
+Вывести min, max, avg цену книги у автора:
+SELECT author, MIN(price) AS 'Минимальная_цена', MAX(price) AS 'Максимальная_цена', AVG(price) AS 'Средняя_цена'
+FROM book
+GROUP BY author;
+
+Расчет НДС и без НДС:
+SELECT author, SUM(price * amount) AS 'Стоимость', 
+ROUND((SUM(price * amount)*18/100)/(1+18/100),2) AS 'НДС', 
+ROUND((SUM(price * amount))/(1+18/100),2) AS 'Стоимость_без_НДС'
+FROM book
+GROUP BY author;
+
+Посчитать стоимость всех экземпляров каждого автора без учета книг «Идиот» и «Белая гвардия». 
+В результат включить только тех авторов, у которых суммарная стоимость книг 
+(без учета книг «Идиот» и «Белая гвардия») более 5000 руб. 
+Вычисляемый столбец назвать Стоимость. Результат отсортировать по убыванию стоимости.
+
+SELECT 
+author, 
+SUM(price * amount) AS Стоимость
+FROM book
+WHERE title != 'Идиот' AND title != 'Белая гвардия'
+GROUP BY author
+HAVING SUM(price * amount) > 5000
+ORDER BY Стоимость DESC;
+
+Final task for 1.3 part:
+1. В первом запросе считаем общую стоимость проданных книг (продуктов) и их количество от 30.
+В последующих запросах используем эти данные вручную.
+2. Во втором запросе смотрим количество проданных продуктов и экземпляров у каждого автора, 
+рассчитываем доли авторов в общем количестве проданных книг и в их общей стоимости.
+3. В третьем запросе смотрим количество копий каждого продукта, долю одной копии в общей стоимости, 
+а также долю всех копий продукта в общей стоимости и количестве. 
+
+Solution:
+# Solution for task1
+SELECT 
+	SUM(price * amount) AS 'Total cost, roubles (TC)',
+	SUM(30-amount) AS 'Total amount, items (TA)'
+FROM book;
+
+# Solution for task2
+SELECT 
+    author, 
+    COUNT(title) AS 'Products',
+    SUM(amount) AS 'Books in total',
+    ROUND(SUM(price*amount)/26267.50*100,2) AS "Author's % in TC",
+    ROUND(SUM(amount)/134*100,2) AS "Author's % in TA"
+FROM book
+GROUP BY author;
+
+# Solution for task3
+#Preparation:
+	#SELECT 
+	#COUNT(title)*30 AS 'Total Books', //180
+	#SUM(30 * price) AS 'Total Price'  //108030.00
+	#FROM book;
+    
+#Solution
+SELECT 
+title AS "Product name",
+amount AS "Amount of Product",
+amount/(SELECT COUNT(title)*30 FROM book) AS "Product's % in TC", #отношение имеющихся к всей сумме книг (180)
+price/(SELECT SUM(30 * price) FROM book) AS "Product's % in TC (1pc)"
+FROM book
+GROUP BY title, amount, price;
+
+
+
