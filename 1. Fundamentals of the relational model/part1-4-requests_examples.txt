@@ -1,0 +1,68 @@
+Example of sub-request:
+
+SELECT author, title, price
+FROM book
+WHERE price< (SELECT AVG(price) FROM book)
+ORDER BY price DESC;
+
+SELECT author, title, price
+FROM book
+WHERE (price -(SELECT MIN(price) FROM book))<=150
+ORDER BY price ASC;
+
+Вывести информацию (автора, книгу и количество) о тех книгах, количество экземпляров которых 
+в таблице book не дублируется.
+Решение: Во вложенном запросе мы группируем элементы нашей таблицы по количеству книг (GROUP BY amount), 
+т.е. например, "Мастер и Маргарита" и "Братья Карамазовы" попадают в одну группу, т.к. и тех и тех по 3 штуки.
+Потом c помощью функции COUNT(amount) считаем сколько получилось элементов в каждой группе. 
+Например, в группе "5" - один  элемент. Нам нужны те группы, которые состоят только из одного элемента, т.е.
+HAVING COUNT(amount)=1. Список этих групп и формируется в общем запросе: SELECT amount. 
+Во внешнем запросе мы из таблицы book выбираем те строчки, в которых количество amount совпадает с какой-либо 
+группой, получившейся во внутреннем запросе. И выводим различную информацию из этих строчек: author, title, 
+amount.
+И сам запрос: 
+
+SELECT author, title, amount
+FROM book
+WHERE amount IN (
+    SELECT amount
+    FROM book
+    GROUP BY amount
+    HAVING COUNT(amount) = 1
+);
+
+Минимальная цена книги у автора:
+SELECT author, MIN(price) AS min_price
+FROM book
+GROUP BY author;
+
+ПРИМЕР с ANY. Вывести информацию о книгах(автор, название, цена), цена которых меньше самой большой из минимальных цен, 
+вычисленных для каждого автора.
+Решение:
+SELECT author, title, price
+FROM book
+
+WHERE price < ANY (
+SELECT MIN(price)
+FROM book
+GROUP BY author);
+
+Посчитать сколько и каких экземпляров книг нужно заказать поставщикам, чтобы на складе стало одинаковое 
+количество экземпляров каждой книги, равное значению самого большего количества экземпляров одной книги 
+на складе. Вывести название книги, ее автора, текущее количество экземпляров на складе и количество 
+заказываемых экземпляров книг. Последнему столбцу присвоить имя Заказ. В результат не включать книги, 
+которые заказывать не нужно.
+
+SELECT  title, author, amount,
+(SELECT MAX(amount) FROM book)-amount AS Заказ
+FROM book
+WHERE (amount!=(SELECT MAX(amount) FROM book));
+
+Final task:
+Покажите, сколько процентов от всего товара стоят книги конкретного автора. Затем отсортируйте по возрастанию. 
+Solution:
+SELECT  author,
+ROUND(SUM(price*amount)*100/(SELECT SUM(amount*price)from book),2) AS '% of Total'
+FROM book
+GROUP BY author
+ORDER BY SUM(price * amount) ASC;
