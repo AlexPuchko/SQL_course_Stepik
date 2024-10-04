@@ -7,6 +7,10 @@ CREATE TABLE book (
     amount INT
 );
 
+Удалить всю таблицу:
+drop table book
+
+
 Add new rows: 
 INSERT INTO book (title, author, price, amount)
 VALUES  
