@@ -1,0 +1,7 @@
+Занести в таблицу fine суммы штрафов, которые должен оплатить водитель, 
+в соответствии с данными из таблицы traffic_violation. При этом суммы заносить только в пустые поля столбца 
+sum_fine.
+
+UPDATE fine AS f, traffic_violation AS tv
+SET f.sum_fine = tv.sum_fine 
+WHERE f.violation = tv.violation AND f.sum_fine IS NULL;
